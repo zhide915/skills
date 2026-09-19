@@ -1,0 +1,15 @@
+{
+  "name": "zhide915",
+  "description": "zhide915's personal plugins",
+  "owner": {
+    "name": "zhide915",
+    "email": "zhide915@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "zhide915-skills",
+      "source": "./plugins/zhide915-skills",
+      "description": "zhide915's personal skills"
+    }
+  ]
+}
