@@ -1,7 +1,6 @@
 # Roadmap
 
-This file lists future work for this repository. `README.md` describes only
-the present.
+This file lists future work for this repository. `README.md` describes only the present.
 
 | Trigger | Build |
 |---------|-------|
