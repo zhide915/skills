@@ -37,9 +37,10 @@ Load `zhide915-skills:report` first.
 
    Done when the title and the body are in a temporary file.
 7. **Submit**: Run `gh pr create --base <base> --title <title> --body-file <file>`. For an open pull request, run `gh pr edit <n> --title <title> --body-file <file>`.
-   - If the change shows in a UI: give a Your task to add screenshots. `gh` cannot upload images.
+   - If the change shows in a UI: add `--attach '<path>#<alt text>'` for each screenshot.
+   - If you cannot take a screenshot: give a Your task to take one.
 
-   Done when `gh pr view` shows this title and body.
+   Done when `gh pr view` shows this title, this body, and each screenshot.
 
 ## Body
 
