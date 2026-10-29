@@ -7,11 +7,11 @@
 // - The body opens with one paragraph, and each term in bold there is used again below it.
 // - Each step reads `N. **Verb**:`, the steps count from 1, and each step ends on a line of its own: one "Done when"
 //   sentence.
-// - `## Report` is the last section, except in the `report` skill, which defines the report.
+// - `## Report` is the last section, except in the `report-style` skill, which defines the report.
 // - SKILL.md has at most 600 words, and each other Markdown file at most 300.
 // - Each `<plugin>:<skill>` reference names a skill of the plugin. Each ALLCAPS.md name outside a code block, and each
 //   `scripts/<name>` path, resolves inside the skill folder. Each script is `scripts/<name>.mjs`, and SKILL.md shows how to run it.
-// - Each Status and Evidence table cell starts with a value from the Evidence section of the `report` skill.
+// - Each Status and Evidence table cell starts with a value from the Evidence section of the `report-style` skill.
 // - A sentence has at most 20 words in a procedure, and at most 25 in other text.
 // - No Markdown file holds an em dash.
 // Prints one line for each failure as `path:line: rule`, from the repository root, and exits 1 if it printed a line.
@@ -48,15 +48,15 @@ const headings = (lines, from) => {
   return lines.flatMap((l, i) => (i > from && !inFence[i] && /^## /.test(l) ? [{ title: l.slice(3).trim(), i }] : []));
 };
 
-// The allowed values of each table column, read from the Evidence section of the report skill, so that it stays the
+// The allowed values of each table column, read from the Evidence section of the report-style skill, so that it stays the
 // single source. A top bullet `- **Status**: **Pass**, ...` gives its bold values; nested `1. **Ran**` items add theirs.
 function readValues(skillsDir) {
-  const file = join(skillsDir, 'report', 'SKILL.md');
+  const file = join(skillsDir, 'report-style', 'SKILL.md');
   if (!existsSync(file)) return {};
   const lines = read(file);
   const hs = headings(lines, 0);
   const k = hs.findIndex((h) => h.title === 'Evidence');
-  if (k < 0) return fail(file, 1, 'report must have an Evidence section'), {};
+  if (k < 0) return fail(file, 1, 'report-style must have an Evidence section'), {};
   const values = {};
   let entry = null;
   for (let i = hs[k].i + 1; i < (hs[k + 1]?.i ?? lines.length); i++) {
@@ -161,7 +161,7 @@ function checkSkill(skillsDir, plugin, name, skills, values) {
     }
   }
 
-  if (name !== 'report' && hs.at(-1)?.title !== 'Report') fail(file, hs.at(-1)?.i + 1 || 1, 'the last section must be Report');
+  if (name !== 'report-style' && hs.at(-1)?.title !== 'Report') fail(file, hs.at(-1)?.i + 1 || 1, 'the last section must be Report');
   checkSteps(lines, file, hs);
 
   for (const md of readdirSync(dir, { recursive: true }).filter((f) => f.endsWith('.md'))) {

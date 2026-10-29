@@ -12,12 +12,12 @@ This skill ends a session. It parks open work, removes the **leftovers** that th
 
 ## Steps
 
-Load `zhide915-skills:report` first.
+Load `zhide915-skills:report-style` first.
 
 1. **List**: List each leftover, with the command in this conversation that made it. Leave out what the user or another session made.
 
    Done when each leftover has its command.
-2. **Park**: Run `zhide915-skills:hand-off` for each open item. Do this before any removal, so that each handoff points at files that exist.
+2. **Park**: Run `zhide915-skills:handoff` for each open item. Do this before any removal, so that each handoff points at files that exist.
 
    Done when each open item has a handoff.
 3. **Learn**: Turn each correction that the user gave two or more times into a lesson. Aim the lesson at the first place that fits:
@@ -40,7 +40,7 @@ Load `zhide915-skills:report` first.
 Session wrapped. 1 item handed off, 3 leftovers removed, 1 lesson applied.
 
 ## Handed off
-- csv-export: `.scratch/hand-off/20261013-1530-csv-export.md`
+- csv-export: `.scratch/handoff/20261013-1530-csv-export.md`
 
 ## Cleanup
 - Removed: the dev server on port 3000, `.scratch/worktrees/csv-export`, the stash `stash@{0}`.

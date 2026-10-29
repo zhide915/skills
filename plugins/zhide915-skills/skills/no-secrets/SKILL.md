@@ -1,5 +1,5 @@
 ---
-name: sweep-secrets
+name: no-secrets
 description: Sweep staged changes or a range of commits for secrets before they reach history or a remote. Use when the user asks to check for secrets, or when another skill sweeps its changes.
 argument-hint: "[revision range]"
 ---
@@ -8,11 +8,11 @@ This skill sweeps changes for secrets before they reach history or a remote. A *
 
 ## Steps
 
-Load `zhide915-skills:report` first.
+Load `zhide915-skills:report-style` first.
 
 1. **Sweep**: From the folder of the changes, run the script on the staged changes or on a range of commits:
-   - `node <skill folder>/scripts/sweep-secrets.mjs --staged`
-   - `node <skill folder>/scripts/sweep-secrets.mjs --range origin/main..HEAD`
+   - `node <skill folder>/scripts/scan-secrets.mjs --staged`
+   - `node <skill folder>/scripts/scan-secrets.mjs --range origin/main..HEAD`
 
    The script prints each hit with its fingerprint, and each added binary.
    - If it exits with 2: stop, and quote its message.

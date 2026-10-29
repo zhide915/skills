@@ -1,5 +1,5 @@
 ---
-name: tighten-writing
+name: no-needless-words
 description: Cut the words a reader does not need from text that is not code. Use when the user asks to tighten text.
 argument-hint: "[text or path]"
 ---
@@ -8,7 +8,7 @@ This skill cuts each word that the reader does not need, and keeps each fact. **
 
 ## Steps
 
-Load `zhide915-skills:report` first.
+Load `zhide915-skills:report-style` first.
 
 1. **Bound**: Use the text that the caller names. Else, use the lines of writing that the branch adds or changes. Skip generated and vendored files. Keep each uncommitted file that the caller did not name as it is.
    - If the text is not in a file: the report is the tight text alone.

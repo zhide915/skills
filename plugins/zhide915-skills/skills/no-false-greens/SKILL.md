@@ -1,5 +1,5 @@
 ---
-name: harden-tests
+name: no-false-greens
 description: Find hollow tests, rewrite them, and prove that each one goes red when its rule breaks. Use when the user asks if the tests catch bugs or wants them stronger, or when another skill hardens the tests of its changes.
 argument-hint: "[path, revision range, or pull request]"
 ---
@@ -13,7 +13,7 @@ This skill finds **hollow** tests, rewrites them, and proves that each one goes 
 
 ## Steps
 
-Load `zhide915-skills:report` first.
+Load `zhide915-skills:report-style` first.
 
 1. **Bound**: Use the scope that the caller names. Else, use the tests that the branch adds or changes. Run these tests one time, and record each test that already fails.
    - If the scope holds no test: report `Nothing to harden.`

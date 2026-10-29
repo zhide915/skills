@@ -8,13 +8,13 @@ This skill commits the current changes as **atomic** commits. An atomic commit h
 
 ## Steps
 
-Load `zhide915-skills:report` first. Work in the worktree that the caller names, or else in the checkout.
+Load `zhide915-skills:report-style` first. Work in the worktree that the caller names, or else in the checkout.
 
 1. **Select**: If the index holds changes, use the index as it is. Else, stage each change except the strays.
    - If nothing changed: report `Nothing to commit.`
 
    Done when you can name each staged file.
-2. **Sweep**: Run `zhide915-skills:sweep-secrets` on the staged changes.
+2. **Sweep**: Run `zhide915-skills:no-secrets` on the staged changes.
    - If the sweep finds a hit: stop before any commit.
    - If the index holds a stray: unstage it with `git restore --staged -- <path>`. List it under Left out.
 

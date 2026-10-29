@@ -1,5 +1,5 @@
 ---
-name: report
+name: report-style
 description: The report shape, the evidence labels, and the Your call format that each skill of this plugin uses. Use when a skill says to load it.
 ---
 

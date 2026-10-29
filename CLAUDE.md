@@ -25,7 +25,7 @@ Done when: before you save a file, you can say which sessions see it, and when.
 - Write the body first and the description last. Each turn of each project loads the description, so each word must earn its place.
 - Write plain Markdown that any agent harness can follow.
 - Put each agent in one file in `agents/`.
-- Run `node scripts/check-skill.mjs`. Its header lists the rules that it checks.
+- Run `node scripts/lint-skills.mjs`. Its header lists the rules that it checks.
 
 Done when: the checker prints nothing, and the skill that works live also works copied at the pushed commit.
 

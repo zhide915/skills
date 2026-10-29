@@ -1,5 +1,5 @@
 ---
-name: gate-review
+name: verdict
 description: Give an Approve or Block verdict on the exact head of a branch or a pull request, from a fresh reviewer. Use when the user asks for a verdict, such as "approve or block" or "is it ready to merge".
 argument-hint: "[branch, pull request number, or url]"
 ---
@@ -8,7 +8,7 @@ This skill gives an Approve or Block verdict on one head SHA of a branch or a pu
 
 ## Steps
 
-Load `zhide915-skills:report` first.
+Load `zhide915-skills:report-style` first.
 
 1. **Pin**: Find the head SHA, the base, and their merge-base. Use the head and the base that the caller names first.
    - For a pull request: read `gh pr view <n> --json headRefOid,baseRefName,isCrossRepository`. Then run `git fetch origin <base> pull/<n>/head`, because a plain fetch misses a head from a fork.

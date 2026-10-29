@@ -13,7 +13,7 @@ This skill runs a change on its real **surface**, and gives evidence for each cl
 
 ## Steps
 
-Load `zhide915-skills:report` first.
+Load `zhide915-skills:report-style` first.
 
 1. **Bound**: Use the claims that the caller names. Else, use the behaviour of the branch that no test covers. For each claim, write its surface and the result that you expect.
    - If there are no claims: report `Nothing to test.`

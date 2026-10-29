@@ -9,7 +9,7 @@ This skill squash-merges a pull request, then ticks the criteria of its issues. 
 
 ## Steps
 
-Load `zhide915-skills:report` first.
+Load `zhide915-skills:report-style` first.
 
 1. **Read**: Run `gh pr view <n> --json state,isDraft,mergeable,headRefOid,baseRefName,closingIssuesReferences`. The head SHA is `headRefOid`.
    - If the pull request is a draft, is closed, or is `CONFLICTING`: stop.
@@ -20,7 +20,7 @@ Load `zhide915-skills:report` first.
    - If no check exists, but `.github/workflows/` does: give a Your call. The checks can still be starting.
 
    Done when each check passed.
-3. **Review**: Run `zhide915-skills:gate-review` on the pull request. Skip the review if this session has an Approve for this head SHA.
+3. **Review**: Run `zhide915-skills:verdict` on the pull request. Skip the review if this session has an Approve for this head SHA.
    - If the verdict is Block: stop, unless the user said merge anyway.
 
    Done when you have an Approve for the head SHA, or the user said merge anyway.

@@ -9,7 +9,7 @@ This skill pushes the current branch and opens or updates its pull request. The 
 
 ## Steps
 
-Load `zhide915-skills:report` first.
+Load `zhide915-skills:report-style` first.
 
 1. **Resolve**: Use the base that the user names. Else, use the base of the open pull request, or the default branch. Run `git fetch`.
    - If the current branch is the base: give a Your call for a new branch name.
@@ -19,7 +19,7 @@ Load `zhide915-skills:report` first.
    - If `zhide915-skills:commit` stops: stop.
 
    Done when each change of the pull request is committed.
-3. **Sweep**: Read the PR diff for strays: secrets, scratch files, debug code, and changes for another purpose. Run `zhide915-skills:sweep-secrets` on `origin/<base>..HEAD`. Remove each stray in a new commit.
+3. **Sweep**: Read the PR diff for strays: secrets, scratch files, debug code, and changes for another purpose. Run `zhide915-skills:no-secrets` on `origin/<base>..HEAD`. Remove each stray in a new commit.
    - If the PR diff is empty: report `Nothing to submit.`
    - If the sweep finds a hit: stop.
 
@@ -56,7 +56,7 @@ Closes #<issue>
 ```
 
 - Write for a reader who does not know these skills. Give commands and outcomes, without skill names or evidence labels.
-- Write `Reviewed:` only with a `zhide915-skills:gate-review` verdict from this session for the pushed SHA. Else, write `Not reviewed at <sha>.`
+- Write `Reviewed:` only with a `zhide915-skills:verdict` result from this session for the pushed SHA. Else, write `Not reviewed at <sha>.`
 - On an update, keep each section that a person wrote.
 
 ## Report

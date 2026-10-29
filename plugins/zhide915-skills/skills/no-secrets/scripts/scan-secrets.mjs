@@ -11,7 +11,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join, basename } from 'node:path';
 
 const die = (msg) => {
-  console.error(`sweep-secrets: ${msg}`);
+  console.error(`scan-secrets: ${msg}`);
   process.exit(2);
 };
 
@@ -34,7 +34,7 @@ const CREDENTIAL_NAME = /\.(pem|key|p12|pfx|jks|keystore)$|^id_[^.]*$/i;
 const args = process.argv.slice(2);
 const staged = args[0] === '--staged';
 const range = args[0] === '--range' ? args[1] : undefined;
-if (!staged && !range) die('usage: sweep-secrets.mjs --staged | --range <revision range>');
+if (!staged && !range) die('usage: scan-secrets.mjs --staged | --range <revision range>');
 
 const topRun = spawnSync('git', ['rev-parse', '--show-toplevel'], { encoding: 'utf8' });
 if (topRun.status !== 0) die((topRun.stderr || 'not in a git repository').trim());

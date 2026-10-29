@@ -1,6 +1,6 @@
 ---
 name: implement
-description: Build one ticket or agreed plan test-first into committed and reviewed work on a branch. Use when the user asks to implement a ticket or a plan, or a `zhide915-skills:orchestrate` brief names it.
+description: Build one ticket or agreed plan test-first into committed and reviewed work on a branch. Use when the user asks to implement a ticket or a plan, or a `zhide915-skills:foreman` brief names it.
 argument-hint: "[ticket or plan]"
 ---
 
@@ -10,11 +10,11 @@ This skill takes one ticket or plan to committed and reviewed work on a branch. 
 
 - Ask the user only in the Agree step. After that step, put each open question in the report.
 - A **round** is a return to the Build step after a Block, a failed claim, or a real bug. Stop after three rounds.
-- If a `zhide915-skills:orchestrate` brief started this run: the brief replaces the Agree step. The orchestrator does the Review and Field-test steps.
+- If a `zhide915-skills:foreman` brief started this run: the brief replaces the Agree step. The orchestrator does the Review and Field-test steps.
 
 ## Steps
 
-Load `zhide915-skills:report` first.
+Load `zhide915-skills:report-style` first.
 
 1. **Branch**: Use the worktree that the caller names. Else, run `git fetch`, and make a worktree with `git worktree add <worktree> -b <branch> origin/<base>`. Do each later step in the worktree.
 
@@ -34,12 +34,12 @@ Load `zhide915-skills:report` first.
    - If the work needs a file or a check that `predicate.md` does not hold: stop. Say what you expected and what you found.
 
    Done when each check passes.
-5. **Commit**: Run `zhide915-skills:commit`. Then run `zhide915-skills:harden-tests` and `zhide915-skills:tighten-writing` on the branch, and commit after each one.
+5. **Commit**: Run `zhide915-skills:commit`. Then run `zhide915-skills:no-false-greens` and `zhide915-skills:no-needless-words` on the branch, and commit after each one.
    - If `zhide915-skills:commit` stops: stop.
-   - If `zhide915-skills:harden-tests` finds a real bug that the specification rules out: start a new round.
+   - If `zhide915-skills:no-false-greens` finds a real bug that the specification rules out: start a new round.
 
    Done when `git status` in the worktree is clean.
-6. **Review**: Run `zhide915-skills:gate-review` on the branch, with `predicate.md` as the specification.
+6. **Review**: Run `zhide915-skills:verdict` on the branch, with `predicate.md` as the specification.
    - If the verdict is Block: fix each Must fix finding and each Fail criterion in a new round.
 
    Done when the verdict is Approve.
@@ -54,7 +54,7 @@ Load `zhide915-skills:report` first.
 ## Report
 
 ```markdown
-csv-export built: 3 commits, gate-review Approve at `abc1234`, not pushed. 2 of 2 criteria pass.
+csv-export built: 3 commits, verdict Approve at `abc1234`, not pushed. 2 of 2 criteria pass.
 
 ## Criteria
 | Criterion | Status | Evidence |
