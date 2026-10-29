@@ -4,7 +4,7 @@ description: Give an Approve or Block verdict on the exact head of a branch or a
 argument-hint: "[branch, pull request number, or url]"
 ---
 
-This skill gives an Approve or Block verdict on one head SHA of a branch or a pull request. A **fresh** reviewer gives the verdict: an agent with no context from the session that wrote the change. The reviewer follows `REVIEWER.md`. The skill judges committed work only, and keeps the code as it is.
+This skill gives an Approve or Block verdict on one head SHA of a branch or a pull request. A **fresh** reviewer gives the verdict: an agent with no context from the session that wrote the change. The reviewer follows `REVIEWER.md`. The skill judges committed work, and only reads the code.
 
 ## Steps
 
@@ -19,7 +19,7 @@ Load `zhide915-skills:report-style` first.
 2. **Gather**: Find the specification: the ticket or plan that the caller names, or else the issues that the pull request closes. Make a worktree at the head with `git worktree add --detach <worktree> <head>`, because the checkout can hold uncommitted code.
 
    Done when the worktree holds the head, and you have the specification or know that there is none.
-3. **Review**: Start a fresh agent. Give it the text of `REVIEWER.md` as it is. Then give it the worktree, the head, the merge-base, the specification, and the fork status.
+3. **Review**: Start a fresh agent on your model. Give it the text of `REVIEWER.md` as it is. Then give it the worktree, the head, the merge-base, the specification, and the fork status.
    - If no fresh agent can start: stop. The author cannot grade its own work.
 
    Done when the reviewer returned its findings and its criteria table.

@@ -43,7 +43,7 @@ Load `zhide915-skills:report-style` first.
    - If the verdict is Block: fix each Must fix finding and each Fail criterion in a new round.
 
    Done when the verdict is Approve.
-7. **Field-test**: Give the runtime claims to `zhide915-skills:field-test` in a fresh agent, with the worktree.
+7. **Field-test**: Give the runtime claims to `zhide915-skills:field-test` in a fresh agent on your model, with the worktree.
    - If a claim fails: fix it in a new round.
 
    Done when each runtime claim has a status.

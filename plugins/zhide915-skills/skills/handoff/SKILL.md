@@ -46,5 +46,5 @@ Next session: check each line under Verify first, then start at Next.
 ## Report
 
 ```markdown
-Handed off "csv-export": `.scratch/handoff/20261013-1530-csv-export.md`.
+Handed off "csv-export": `.scratch/handoff/20261013-1530-csv-export.md`. To continue: clear the context, then give the fresh session this path.
 ```

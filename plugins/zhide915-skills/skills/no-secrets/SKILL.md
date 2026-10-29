@@ -4,7 +4,7 @@ description: Sweep staged changes or a range of commits for secrets before they 
 argument-hint: "[revision range]"
 ---
 
-This skill sweeps changes for secrets before they reach history or a remote. A **hit** is an added line that looks like a secret, or an added file with a credential name, such as `id_rsa`. Each hit stops the work until the user judges it. The skill keeps files and commits as they are.
+This skill sweeps changes for secrets before they reach history or a remote. A **hit** is an added line that looks like a secret, or an added file with a credential name, such as `id_rsa`. Each hit stops the work until the user judges it. The skill only reads.
 
 ## Steps
 

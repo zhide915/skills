@@ -20,7 +20,7 @@ Load `zhide915-skills:report-style` first.
    - If a test, a selector, or another program matches a heading or a string: keep it. Give the new text in a Your call.
 
    Done when each sentence is kept or cut.
-3. **Verify**: Give `git diff -- <files>` to a fresh agent. Ask it to list each lost fact, negation, number, qualifier, and condition. Put each one back. Then run the checks of the repository on the files.
+3. **Verify**: Give `git diff -- <files>` to a fresh agent on a smaller model than yours. Ask it to list each lost fact, negation, number, qualifier, and condition. Put each one back. Then run the checks of the repository on the files.
 
    Done when the fresh agent lists nothing, and each check passes.
 

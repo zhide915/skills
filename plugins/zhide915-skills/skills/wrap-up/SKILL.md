@@ -37,7 +37,7 @@ Load `zhide915-skills:report-style` first.
 ## Report
 
 ```markdown
-Session wrapped. 1 item handed off, 3 leftovers removed, 1 lesson applied.
+Session wrapped. 1 item handed off, 3 leftovers removed, 1 lesson applied. To continue: clear the context, then give a fresh session the handoff path.
 
 ## Handed off
 - csv-export: `.scratch/handoff/20261013-1530-csv-export.md`
