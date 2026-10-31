@@ -1,11 +1,11 @@
 ---
 name: submit-pr
-description: Push the current branch and open or update its pull request, with the reason and the evidence for the pushed commit.
+description: Push the current branch, then open or update its pull request with a title and a body that you approve first.
 argument-hint: "[base]"
 disable-model-invocation: true
 ---
 
-This skill pushes the current branch and opens or updates its pull request. The **PR diff** is `git diff origin/<base>...HEAD`: all that a reviewer sees. Each hunk of the PR diff belongs to the pull request, and the body shows the evidence for the pushed SHA.
+This skill pushes the current branch, and opens or updates its pull request after the user approves its text. The **PR diff** is `git diff origin/<base>...HEAD`: all that a reviewer sees. Each hunk of the PR diff belongs to the pull request.
 
 ## Steps
 
@@ -33,29 +33,24 @@ Load `zhide915-skills:report-style` first.
    - If the remote rejects the push: stop, and quote its message.
 
    Done when `git status` shows that the branch is up to date with its remote.
-6. **Write**: Write the title as a conventional commit subject, because the squash merge makes it the commit on the base. Write the body from the template of the repository, or else from the body below.
+6. **Write**: Write the title as a conventional commit subject, because the squash merge makes it the commit on the base. Write the body from the template of the repository, or else with `mattpocock-skills:pr`. Follow the Body section.
+   - If the change shows in a UI: take a screenshot of each changed screen.
+   - If you cannot take a screenshot: add a Your task to the Agree step.
 
-   Done when the title and the body are in a temporary file.
-7. **Submit**: Run `gh pr create --base <base> --title <title> --body-file <file>`. For an open pull request, run `gh pr edit <n> --title <title> --body-file <file>`.
-   - If the change shows in a UI: add `--attach '<path>#<alt text>'` for each screenshot.
-   - If you cannot take a screenshot: give a Your task to take one.
+   Done when you have the title, the body file, and each screenshot.
+7. **Agree**: Give one Your call that shows the title, the body, and each screenshot. Add each fact that only the user knows, such as the risk of a revert.
+   - If the user changes the text: update it, and give the Your call again.
 
-   Done when `gh pr view` shows this title, this body, and each screenshot.
+   Done when the user approved all three.
+8. **Submit**: Run `gh pr create --base <base> --title <title> --body-file <file>`. For an open pull request, run `gh pr edit <n> --title <title> --body-file <file>`. Add `--attach '<path>#<alt text>'` for each screenshot.
+
+   Done when `gh pr view` shows what the user approved.
 
 ## Body
 
-```markdown
-## Summary
-<One sentence: why this change.>
-
-Closes #<issue>
-
-## Verification
-- `npm test` passed at `abc1234`.
-- Reviewed: Approve at `abc1234`.
-```
-
 - Write for a reader who does not know these skills. Give commands and outcomes, without skill names or evidence labels.
+- Add `Closes #<issue>` for each issue that the pull request closes.
+- Give each result at the pushed SHA, such as "`npm test` passed at `abc1234`."
 - Write `Reviewed:` only with a `zhide915-skills:verdict` result from this session for the pushed SHA. Else, write `Not reviewed at <sha>.`
 - On an update, keep each section that a person wrote.
 
