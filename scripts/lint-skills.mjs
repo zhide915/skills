@@ -1,17 +1,16 @@
 #!/usr/bin/env node
-// Checks each skill folder at plugins/*/skills/* against these rules:
-// - The folder holds SKILL.md. Its frontmatter opens on line 1, and its `name` is the folder name.
-// - A model-invoked description says what the skill is, then "Use when" with the triggers. A user-invoked description
-//   (`disable-model-invocation: true`) is one line for a person, with no "Use when". A description that holds ": " is
-//   quoted, because CRLF breaks the frontmatter parse.
+// Checks each skill folder at plugins/*/skills/* and each agent file at plugins/*/agents/*.md against these rules:
+// - A skill folder holds SKILL.md. The frontmatter opens on line 1, and its `name` is the folder name or the file name.
+// - A model-invoked description says what the skill or agent is, then "Use when" with the triggers. A user-invoked
+//   description (`disable-model-invocation: true`) is one line for a person, with no "Use when". A description that
+//   holds ": " is quoted, because CRLF breaks the frontmatter parse.
 // - The body opens with one paragraph, and each term in bold there is used again below it.
 // - Each step reads `N. **Verb**:`, the steps count from 1, and each step ends on a line of its own: one "Done when"
 //   sentence.
-// - `## Report` is the last section, except in the `report-style` skill, which defines the report.
-// - SKILL.md has at most 600 words, and each other Markdown file at most 300.
-// - Each `<plugin>:<skill>` reference names a skill of the plugin. Each ALLCAPS.md name outside a code block, and each
-//   `scripts/<name>` path, resolves inside the skill folder. Each script is `scripts/<name>.mjs`, and SKILL.md shows how to run it.
-// - Each Status and Evidence table cell starts with a value from the Evidence section of the `report-style` skill.
+// - SKILL.md and an agent file have at most 600 words, and each other Markdown file at most 300.
+// - Each `<plugin>:<name>` reference names a skill or an agent of the plugin. Each ALLCAPS.md name outside a code block,
+//   and each `scripts/<name>` path, resolves inside the skill folder. Each script is `scripts/<name>.mjs`, and SKILL.md
+//   shows how to run it.
 // - A sentence has at most 20 words in a procedure, and at most 25 in other text.
 // - No Markdown file holds an em dash.
 // Prints one line for each failure as `path:line: rule`, from the repository root, and exits 1 if it printed a line.
@@ -48,45 +47,6 @@ const headings = (lines, from) => {
   return lines.flatMap((l, i) => (i > from && !inFence[i] && /^## /.test(l) ? [{ title: l.slice(3).trim(), i }] : []));
 };
 
-// The allowed values of each table column, read from the Evidence section of the report-style skill, so that it stays the
-// single source. A top bullet `- **Status**: **Pass**, ...` gives its bold values; nested `1. **Ran**` items add theirs.
-function readValues(skillsDir) {
-  const file = join(skillsDir, 'report-style', 'SKILL.md');
-  if (!existsSync(file)) return {};
-  const lines = read(file);
-  const hs = headings(lines, 0);
-  const k = hs.findIndex((h) => h.title === 'Evidence');
-  if (k < 0) return fail(file, 1, 'report-style must have an Evidence section'), {};
-  const values = {};
-  let entry = null;
-  for (let i = hs[k].i + 1; i < (hs[k + 1]?.i ?? lines.length); i++) {
-    const top = lines[i].match(/^- \*\*([^*]+)\*\*:(.*)$/);
-    const nested = lines[i].match(/^\s+(?:\d+\.|-) \*\*([^*]+)\*\*/);
-    if (top) entry = values[top[1]] = [...top[2].matchAll(/\*\*([^*]+)\*\*/g)].map((m) => m[1]);
-    else if (nested && entry) entry.push(nested[1]);
-  }
-  return values;
-}
-
-const COLUMN = { Status: 'Status', Evidence: 'Evidence label' };
-
-function checkTables(lines, file, values) {
-  const cells = (l) => l.split('|').slice(1, -1).map((c) => c.trim());
-  for (let i = 0; i + 1 < lines.length; i++) {
-    if (!/^\s*\|/.test(lines[i]) || !/^\s*\|[-| :]+\|$/.test(lines[i + 1])) continue;
-    const header = cells(lines[i]);
-    for (let r = i + 2; r < lines.length && /^\s*\|/.test(lines[r]); r++) {
-      cells(lines[r]).forEach((cell, c) => {
-        const allowed = values[COLUMN[header[c]]];
-        if (!allowed || cell === '' || cell.startsWith('<')) return;
-        if (!allowed.some((v) => cell === v || cell.startsWith(`${v}:`) || cell.startsWith(`${v} at `))) {
-          fail(file, r + 1, `${header[c]} "${cell}" must start with one of: ${allowed.join(', ')}`);
-        }
-      });
-    }
-  }
-}
-
 // A step is a top-level `N. **Verb**:` item. Its block runs to the next top-level item or heading.
 function checkSteps(lines, file, hs) {
   const k = hs.findIndex((h) => h.title === 'Steps');
@@ -105,10 +65,10 @@ function checkSteps(lines, file, hs) {
   }
 }
 
-function checkReferences(lines, file, dir, plugin, skills) {
+function checkReferences(lines, file, dir, plugin, names) {
   const text = lines.join('\n');
   for (const [ref, owner, name] of text.matchAll(/\b([\w-]+):([a-z][\w-]*)\b/g)) {
-    if (owner === plugin && !skills.includes(name)) fail(file, lineOf(lines, ref), `"${ref}" names no skill of ${plugin}`);
+    if (owner === plugin && !names.includes(name)) fail(file, lineOf(lines, ref), `"${ref}" names no skill or agent of ${plugin}`);
   }
   const inFence = fenced(lines);
   const prose = lines.filter((_, i) => !inFence[i]).join('\n');
@@ -135,19 +95,16 @@ function checkSentences(lines, file, from) {
   });
 }
 
-function checkSkill(skillsDir, plugin, name, skills, values) {
-  const dir = join(skillsDir, name);
-  const file = join(dir, 'SKILL.md');
-  if (!existsSync(file)) return fail(dir, 1, 'skill folder must hold SKILL.md');
-  const lines = read(file);
+// The checks that a SKILL.md and an agent file share. `name` is the folder name of a skill, or the file name of an agent.
+function checkEntry(file, lines, name, kind) {
   const { end, fields } = frontmatter(lines, file);
 
-  if (fields.name?.value !== name) fail(file, fields.name?.line ?? 1, `frontmatter name must equal the folder name "${name}"`);
+  if (fields.name?.value !== name) fail(file, fields.name?.line ?? 1, `frontmatter name must equal the ${kind} name "${name}"`);
   const desc = fields.description;
   if (!desc?.value) fail(file, 1, 'frontmatter must have a description');
   else if (fields['disable-model-invocation']?.value === 'true') {
     if (/\bUse when\b/.test(desc.value)) fail(file, desc.line, 'a user-invoked description is one line for a person, with no "Use when"');
-  } else if (!/\. Use when /.test(desc.value)) fail(file, desc.line, 'a model-invoked description says what the skill is, then "Use when" with its triggers');
+  } else if (!/\. Use when /.test(desc.value)) fail(file, desc.line, `a model-invoked description says what the ${kind} is, then "Use when" with its triggers`);
   if (desc?.value.includes(': ') && !/^["']/.test(desc.value)) fail(file, desc.line, 'a description that holds ": " must be quoted');
 
   const hs = headings(lines, end);
@@ -160,19 +117,28 @@ function checkSkill(skillsDir, plugin, name, skills, values) {
       if (!re.test(after)) fail(file, opening[0].i + 1, `bold term "${term}" must be used below the opening paragraph`);
     }
   }
-
-  if (name !== 'report-style' && hs.at(-1)?.title !== 'Report') fail(file, hs.at(-1)?.i + 1 || 1, 'the last section must be Report');
   checkSteps(lines, file, hs);
+  return end;
+}
+
+function checkMarkdown(path, lines, dir, plugin, names, limit, from) {
+  if (words(lines) > limit) fail(path, 1, `${words(lines)} words, over the limit of ${limit}`);
+  lines.forEach((l, i) => l.includes('—') && fail(path, i + 1, 'no em dash'));
+  checkReferences(lines, path, dir, plugin, names);
+  checkSentences(lines, path, from);
+}
+
+function checkSkill(skillsDir, plugin, name, names) {
+  const dir = join(skillsDir, name);
+  const file = join(dir, 'SKILL.md');
+  if (!existsSync(file)) return fail(dir, 1, 'skill folder must hold SKILL.md');
+  const lines = read(file);
+  const end = checkEntry(file, lines, name, 'skill');
 
   for (const md of readdirSync(dir, { recursive: true }).filter((f) => f.endsWith('.md'))) {
     const path = join(dir, md);
-    const ml = path === file ? lines : read(path);
-    const limit = path === file ? 600 : 300;
-    if (words(ml) > limit) fail(path, 1, `${words(ml)} words, over the limit of ${limit}`);
-    ml.forEach((l, i) => l.includes('\u2014') && fail(path, i + 1, 'no em dash'));
-    checkReferences(ml, path, dir, plugin, skills);
-    checkTables(ml, path, values);
-    checkSentences(ml, path, path === file ? end + 1 : 0);
+    if (path === file) checkMarkdown(path, lines, dir, plugin, names, 600, end + 1);
+    else checkMarkdown(path, read(path), dir, plugin, names, 300, 0);
   }
 
   const scripts = join(dir, 'scripts');
@@ -182,11 +148,21 @@ function checkSkill(skillsDir, plugin, name, skills, values) {
   }
 }
 
+function checkAgent(agentsDir, plugin, file, names) {
+  const path = join(agentsDir, file);
+  const lines = read(path);
+  const end = checkEntry(path, lines, file.slice(0, -3), 'agent');
+  checkMarkdown(path, lines, agentsDir, plugin, names, 600, end + 1);
+}
+
 for (const plugin of subfolders(join(root, 'plugins'))) {
   const skillsDir = join(root, 'plugins', plugin, 'skills');
+  const agentsDir = join(root, 'plugins', plugin, 'agents');
   const skills = subfolders(skillsDir);
-  const values = readValues(skillsDir);
-  for (const name of skills) checkSkill(skillsDir, plugin, name, skills, values);
+  const agents = existsSync(agentsDir) ? readdirSync(agentsDir).filter((f) => f.endsWith('.md')) : [];
+  const names = [...skills, ...agents.map((f) => f.slice(0, -3))];
+  for (const name of skills) checkSkill(skillsDir, plugin, name, names);
+  for (const file of agents) checkAgent(agentsDir, plugin, file, names);
 }
 for (const f of failures) console.log(f);
 process.exitCode = failures.length ? 1 : 0;
