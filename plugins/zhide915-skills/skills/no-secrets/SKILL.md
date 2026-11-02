@@ -1,39 +1,25 @@
 ---
 name: no-secrets
-description: Sweep staged changes or a range of commits for secrets before they reach history or a remote. Use when the user asks to check for secrets, or when another skill sweeps its changes.
+description: Scan staged changes or a range of commits for secrets before they reach history or a remote. Use when the user asks to check for secrets, or before a commit or a push.
 argument-hint: "[revision range]"
 ---
 
-This skill sweeps changes for secrets before they reach history or a remote. A **hit** is an added line that looks like a secret, or an added file with a credential name, such as `id_rsa`. Each hit stops the work until the user judges it. The skill only reads.
+This skill scans changes for secrets before they reach history or a remote. A **hit** is an added line that looks like a secret, or an added file with a credential name, such as `id_rsa`. Each hit stops the work until the user judges it. The skill only reads.
 
 ## Steps
 
-Load `zhide915-skills:report-style` first.
-
-1. **Sweep**: From the folder of the changes, run the script on the staged changes or on a range of commits:
+1. **Scan**: In the repository of the changes, run the script on the staged changes or on a range of commits:
    - `node <skill folder>/scripts/scan-secrets.mjs --staged`
    - `node <skill folder>/scripts/scan-secrets.mjs --range origin/main..HEAD`
 
    The script prints each hit with its fingerprint, and each added binary.
-   - If it exits with 2: stop, and quote its message.
+   - If it exits with 2: the scan could not run. Stop, and quote its message.
 
    Done when you have each hit and each binary.
-2. **Judge**: Read the line of each hit. Open each binary that can hold a secret, such as a database dump. A secret in a binary is a hit. Give each hit one action:
-   - If it is a test fixture: give a Your call to add its fingerprint to `.gitleaksignore`.
-   - If it is only staged: give a Your task to remove it, or to ignore the file.
-   - If only local commits hold it: give a Your call to rewrite those commits. History keeps the secret after a later removal.
-   - If `git branch -r --contains <commit>` lists a branch: give a Your task to rotate the secret. The secret is exposed.
+2. **Judge**: Read the line of each hit. Open each binary that can hold a secret, such as a database dump. A secret in a binary is a hit. Tell the user each hit, with the action that fits it:
+   - A test fixture: add its fingerprint to `.gitleaksignore`, after the user agrees.
+   - Only staged: unstage it, or ignore the file.
+   - Only in local commits: rewrite those commits, after the user agrees. History keeps the secret after a later removal.
+   - On a remote branch, as `git branch -r --contains <commit>` shows: the secret is exposed, and the user must rotate it.
 
    Done when each hit and each binary has an action.
-
-## Report
-
-```markdown
-Swept `origin/main..HEAD`: 1 hit, 0 binaries. 1 task needs you.
-
-## Your task
-1. **Rotate the Stripe key.** Commit `abc1234` is on `origin/feature`, so the key is exposed.
-
-## Hits
-- `abc1234` `src/pay.ts:12`, stripe-access-token, fingerprint `src/pay.ts:stripe-access-token:12`: a real key, pushed.
-```

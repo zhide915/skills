@@ -1,68 +1,31 @@
 ---
 name: foreman
-description: "Work toward a goal, a set of items or a metric, in loops of fresh agents, and stop for your call at each risk."
-argument-hint: "[goal, or resume <run>]"
+description: Take a goal from this conversation to reviewed branches, through builder, reviewer, and tester agents.
+argument-hint: "[goal, ticket, or plan]"
 disable-model-invocation: true
 ---
 
-This skill works toward a goal in loops of fresh agents. It splits the goal into items, gives each item a **brief**, and judges each result. Progress is a new commit whose checks pass, or a better metric.
+This skill takes a goal from this conversation to reviewed branches. You plan and judge, and fresh agents do the work: the builder writes the code, the reviewer judges it, and the tester runs it. A **brief** is the whole input of one builder. The builder had no part in this conversation, so the brief carries each thing that the conversation decided. A **round** is one more builder run on a correction brief.
 
 ## Rules
 
-- Fresh agents make each change, and you write no code.
-- Make each decision that you can undo yourself. Log it in `decisions.md`, with its reason and its undo.
-- **Stop** an item and give a Your call when one of these occurs:
-  - An action needs a letter.
-  - The goal or the criteria must change.
-  - Two loops in sequence make no progress.
-  - The item reaches its loop limit.
-  - You are not sure what the user wants.
+- You write no code. Each change comes from a builder.
+- An item stops after three rounds, or after two rounds that make no progress.
+- Ask the user when an action needs their consent, when a brief must change, or when you are not sure what they want.
+- The main checkout is the parent folder of `git rev-parse --path-format=absolute --git-common-dir`. Before you write under its `.scratch/` folder, make sure that `.scratch/.gitignore` holds the line `*`.
 
 ## Steps
 
-Load `zhide915-skills:report-style` first.
+1. **Brief**: Split the goal into items. Size each item so that one builder can finish it in one context. Write a brief for each item from `BRIEF.md`, to `.scratch/foreman/<run>/<item>.md` in the main checkout. Show the briefs to the user, and update them from the reply.
+   - If the goal is a metric: write a script that measures it. Put the script in each brief as a check. Freeze the script when two runs on the same code agree.
 
-1. **Agree**: Agree on the goal, its checks, and a loop limit for each item, 3 by default. Ask once for the missing values. Make the run folder `.scratch/foreman/<run>/`, and log the agreement in its `decisions.md`.
-   - If the argument is `resume <run>`: read `decisions.md` and `report.md` of that run. Apply the letters, and go to the Loop step.
-   - If the goal is a metric: write a script that measures it. Freeze the script when two runs on the same code agree. A changed script makes the numbers mean nothing.
+   Done when the user approved each brief.
+2. **Build**: For each brief, run `git fetch`, then `git worktree add <main checkout>/.scratch/worktrees/<item> -b <branch> origin/<base>`. Spawn the agent `zhide915-skills:builder` with the path of the brief. Spawn builders in parallel when their briefs touch different files.
 
-   Done when the goal, the checks, and the limit are in `decisions.md`.
-2. **Brief**: Split the goal into items. Size each item to fit one context of one fresh agent. For each item, run `git fetch`, and make its worktree with `git worktree add <worktree> -b <branch> origin/<base>`. Save a brief from the template below in `briefs/`.
-   - If you cannot fill a field: the item is not ready. Give a Your call.
+   Done when each builder returned a head or a stop.
+3. **Verify**: At each head, run the checks of the brief yourself. Spawn the agent `zhide915-skills:reviewer` with the worktree, the head, the base, and the path of the brief. Spawn the agent `zhide915-skills:tester` with the worktree and the runtime claims of the brief. Turn each Block, each failed claim, and each worse metric into a correction brief. Then do step 2 again for that item.
 
-   Done when each ready item has a brief and a worktree.
-3. **Loop**: Start a fresh agent on your model for each brief. When an agent reports, run its checks yourself. Then run `zhide915-skills:verdict` on its branch, with its `predicate.md`. Give its runtime claims to `zhide915-skills:field-test` in a fresh agent on your model. Each Block or failed claim becomes a correction brief: one loop.
-   - If the goal is a metric: keep a loop only if the metric improves and the checks pass. Else, give a brief to revert the loop.
+   Done when each item has an Approve and passed claims at its head, or the item stopped.
+4. **Close**: Remove each worktree of this run, and keep each branch. Tell the user the state of each item, its branch and head, and each question that is open.
 
-   Done when each item is approved or stopped.
-4. **Finish**: Remove each worktree, and keep the branches. Save the report as `report.md` in the run folder.
-
-   Done when each item has a state in the report.
-
-## Brief
-
-```markdown
-From: zhide915-skills:foreman
-Goal: <the goal, and the one concern of this item>
-Specification: <the criteria, or the metric and its checks>
-Base: <base>. Branch: <branch>.
-Worktree: <full path>. Write code only here, because other agents share the checkout.
-Off-limits: <the files that you must not touch>
-Stop and report when: an action needs a letter, the goal or the criteria must change, or you are not sure what the user wants.
-Run: zhide915-skills:implement. Report the branch head and the path of predicate.md.
-```
-
-## Report
-
-```markdown
-2 of 3 items built and approved, not pushed. 1 call needs you.
-
-## Items
-| Item | State | Branch |
-|---|---|---|
-| csv-export | approved | `csv-export` at `abc1234` |
-| api-auth | stopped: needs a schema change | `api-auth` at `def5678` |
-
-## Run
-- Loops: 4 of 9. Decisions: 6 in `.scratch/foreman/q4-polish/decisions.md`.
-```
+   Done when each item has a state, and no worktree of this run remains.
