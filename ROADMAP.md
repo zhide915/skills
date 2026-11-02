@@ -10,3 +10,4 @@ This file lists future work for this repository. `README.md` describes only the 
 | Someone else installs the marketplace and needs updates only when you release. | **Release versions**: a `version` field in `plugin.json` that you bump on each release. `CLAUDE.md` says `plugin.json` carries no `version`, so amend that rule first. |
 | A pushed commit breaks an install from GitHub. | **Validation in CI**: a CI check that runs `claude plugin validate`. |
 | You adopt a second agent harness. | **Second agent harness**: a link from `plugins/zhide915-skills/skills` into that harness's skills folder. |
+| You chain skills by hand three times for work that `foreman` does not fit, such as a bug hunt. | **Playbooks**: one file for each kind of work in the `foreman` folder, and a step that picks one. |

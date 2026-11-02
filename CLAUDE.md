@@ -24,10 +24,11 @@ Done when: before you save a file, you can say which sessions see it, and when.
 - Keep each skill **self-contained**: each path that a `SKILL.md` names is in the folder of that skill, so the skill works in the copy.
 - Write the body first and the description last. Each turn of each project loads the description, so each word must earn its place.
 - Write plain Markdown that any agent harness can follow.
-- Put each agent in one file in `agents/`.
+- Put each agent in one file in `agents/`. An agent starts with no part in the conversation, so its file and the task from its caller are its whole input.
+- Name a skill or an agent as `<plugin>:<name>`, such as `zhide915-skills:commit`. A fresh session spawns a plugin agent by that name.
 - Run `node scripts/lint-skills.mjs`. Its header lists the rules that it checks.
 
-Done when: the checker prints nothing, and the skill that works live also works copied at the pushed commit.
+Done when: the checker prints nothing, and the skill or agent that works live also works copied at the pushed commit.
 
 ## Renaming: breaking
 
@@ -35,5 +36,6 @@ Settings and commands outside this repository use these names:
 
 - The marketplace name `zhide915` and the plugin ID `zhide915-skills@zhide915`. User settings use both, so a rename disables the plugin, with no warning, on each computer that has it.
 - The folder name of a skill. It is the slash command `/zhide915-skills:<name>`.
+- The file name of an agent. It is the mention `@agent-zhide915-skills:<name>`.
 
 Mark each rename as breaking in its commit.

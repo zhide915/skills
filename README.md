@@ -1,6 +1,6 @@
 # skills
 
-One home for my personal skills.
+One home for my personal skills and agents.
 
 ## Install
 
